@@ -25,10 +25,10 @@ jobs:
           node-version: "20.x"
 
       - name: Install dependencies
-        run: npm install  # `cd app` を削除し、ルートで実行
+        run: npm install  # ルートで実行
 
       - name: Build Next.js app
-        run: npm run build  # `cd app` を削除し、ルートで実行
+        run: npm run build  # ルートで実行
 
       - name: Verify build output
         run: ls -R .next  # `.next/` ができているか確認
@@ -65,4 +65,3 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          restart-app: true
