@@ -17,7 +17,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify repository contents
-        run: ls -R  # リポジトリの中身を確認
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Listing all files:"
+          ls -R
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -37,6 +41,11 @@ jobs:
         run: |
           echo "Creating wwwroot directory..."
           mkdir -p wwwroot
+          if [ -d wwwroot ]; then
+            echo "wwwroot directory successfully created."
+          else
+            echo "Failed to create wwwroot directory!" && exit 1
+          fi
           echo "Copying build files..."
           cp -r .next package.json package-lock.json next.config.js wwwroot/
           if [ -d public ]; then
@@ -47,7 +56,9 @@ jobs:
           echo "Deployment package prepared successfully!"
 
       - name: Verify deployment files before upload
-        run: ls -R ./wwwroot  # `wwwroot/` にファイルがあるか確認
+        run: |
+          echo "Listing contents of wwwroot:"
+          ls -R ./wwwroot
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -68,7 +79,9 @@ jobs:
           name: nextjs-app
 
       - name: Verify deployment files after download
-        run: ls -R ./wwwroot  # ダウンロード後にファイルを確認
+        run: |
+          echo "Listing contents of wwwroot after download:"
+          ls -R ./wwwroot
 
       - name: Install dependencies on Azure
         run: npm install --prefix ./wwwroot  # `wwwroot` で `npm install`
