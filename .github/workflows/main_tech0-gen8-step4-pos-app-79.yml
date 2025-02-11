@@ -25,25 +25,22 @@ jobs:
           node-version: "20.x"
 
       - name: Install dependencies
-        run: |
-          cd app  # `frontend/` ではなく `app/` に変更
-          npm install
+        run: npm install  # `cd app` を削除し、ルートで実行
 
       - name: Build Next.js app
-        run: |
-          cd app  # `frontend/` ではなく `app/` に変更
-          npm run build
+        run: npm run build  # `cd app` を削除し、ルートで実行
+
+      - name: Verify build output
+        run: ls -R .next  # `.next/` ができているか確認
 
       - name: Zip artifact for deployment
-        run: |
-          cd app  # `frontend/` ではなく `app/` に変更
-          zip -r release.zip .next public package.json package-lock.json
+        run: zip -r release.zip .next public package.json package-lock.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: app/release.zip  # `frontend/` ではなく `app/`
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -68,4 +65,4 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          restart-app: true  # デプロイ後にアプリを強制的にリスタート
+          restart-app: true
