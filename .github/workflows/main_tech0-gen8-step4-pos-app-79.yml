@@ -1,4 +1,7 @@
-name: Build and deploy Next.js app to Azure Web App - tech0-gen8-step4-pos-app-79
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App - tech0-gen8-step4-pos-app-79
 
 on:
   push:
@@ -10,30 +13,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: "20.x"
+          node-version: '20.x'
 
-      - name: Install dependencies
-        run: npm install  # `node_modules/` をローカルでインストール
-
-      - name: Build Next.js app
-        run: npm run build  # `.next/` を生成
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .next public package.json package-lock.json
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-app
+          name: node-app
           path: release.zip
 
   deploy:
@@ -42,24 +44,21 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: nextjs-app
+          name: node-app
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
-      - name: Install dependencies on Azure
-        run: npm install  # Azure で `node_modules/` をインストール
-
-      - name: Deploy to Azure Web App
+      
+      - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'tech0-gen8-step4-pos-app-79'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2E00EA6265094F47AB5056DCD287BDD2 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0E58E53B669244DEAE73ADE13A65DF9D }}
