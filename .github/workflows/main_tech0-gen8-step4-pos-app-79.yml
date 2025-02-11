@@ -23,6 +23,10 @@ jobs:
           echo "Listing all files:"
           ls -R
 
+      - name: Set environment variables
+        run: |
+          echo "PORT=3000" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
