@@ -60,6 +60,9 @@ jobs:
       - name: Install dependencies on Azure
         run: npm install  # Azure 上で `node_modules` を再インストール
 
+      - name: Set PORT environment variable
+        run: echo "PORT=3000" >> $GITHUB_ENV  # PORT を明示的に設定
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
