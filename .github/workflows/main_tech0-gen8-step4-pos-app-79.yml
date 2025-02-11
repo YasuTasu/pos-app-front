@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify repository contents
+        run: ls -R  # すべてのファイルを表示
+
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
