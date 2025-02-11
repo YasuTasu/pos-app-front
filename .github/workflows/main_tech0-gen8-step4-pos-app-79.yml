@@ -16,11 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify repository contents and clear cache
-        run: |
-          ls -R
-          rm -rf node_modules
-          rm -rf .next
+      - name: Verify repository contents
+        run: ls -R  # すべてのファイルを表示
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -29,24 +26,24 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd frontend  # `frontend/` ディレクトリに移動
+          cd app  # `frontend/` ではなく `app/` に変更
           npm install
 
       - name: Build Next.js app
         run: |
-          cd frontend  # `frontend/` ディレクトリに移動
-          npm run build  # `.next/` を生成
+          cd app  # `frontend/` ではなく `app/` に変更
+          npm run build
 
       - name: Zip artifact for deployment
         run: |
-          cd frontend  # `frontend/` ディレクトリに移動
+          cd app  # `frontend/` ではなく `app/` に変更
           zip -r release.zip .next public package.json package-lock.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: frontend/release.zip
+          path: app/release.zip  # `frontend/` ではなく `app/`
 
   deploy:
     runs-on: ubuntu-latest
@@ -72,7 +69,3 @@ jobs:
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           restart-app: true  # デプロイ後にアプリを強制的にリスタート
-
-      - name: Check Azure logs
-        run: |
-          curl -s https://tech0-gen8-step4-pos-app-79.scm.azurewebsites.net/api/logs/docker
