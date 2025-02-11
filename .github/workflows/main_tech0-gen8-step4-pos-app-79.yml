@@ -33,14 +33,16 @@ jobs:
       - name: Verify build output
         run: ls -R .next  # ビルド後のファイルを確認
 
-      - name: Zip artifact for deployment
-        run: zip -r release.zip .next public package.json package-lock.json next.config.js
+      - name: Prepare deployment package
+        run: |
+          mkdir -p wwwroot
+          cp -r .next public package.json package-lock.json next.config.js wwwroot/
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: release.zip
+          path: wwwroot
 
   deploy:
     runs-on: ubuntu-latest
@@ -54,28 +56,16 @@ jobs:
         with:
           name: nextjs-app
 
-      - name: Create deployment directory
-        run: mkdir -p /home/site/wwwroot  # フォルダがない場合は作成
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip -d /home/site/wwwroot  # `/home/site/wwwroot` に展開
-
-      - name: Verify deployment files on Azure
-        run: |
-          echo "Checking deployed files..."
-          ls -R /home/site/wwwroot
-          echo "Checking installed Node modules..."
-          ls -R /home/site/wwwroot/node_modules
-          echo "Checking package.json..."
-          cat /home/site/wwwroot/package.json
+      - name: Verify deployment files
+        run: ls -R ./wwwroot
 
       - name: Install dependencies on Azure
-        run: npm install --prefix /home/site/wwwroot  # `/home/site/wwwroot` で `npm install`
+        run: npm install --prefix ./wwwroot  # `wwwroot` で `npm install`
 
       - name: Test application startup
         run: |
           echo "Running npm start to check for errors..."
-          npm --prefix /home/site/wwwroot start || echo "npm start failed!"
+          npm --prefix ./wwwroot start || echo "npm start failed!"
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -83,6 +73,6 @@ jobs:
         with:
           app-name: 'tech0-gen8-step4-pos-app-79'
           slot-name: 'Production'
-          package: /home/site/wwwroot
+          package: ./wwwroot
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           clean: true  # 古いファイルを削除
