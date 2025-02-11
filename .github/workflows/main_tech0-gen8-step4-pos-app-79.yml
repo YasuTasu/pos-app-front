@@ -54,11 +54,11 @@ jobs:
         with:
           name: nextjs-app
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
+      - name: Create deployment directory
+        run: mkdir -p /home/site/wwwroot  # フォルダがない場合は作成
 
-      - name: Install dependencies on Azure
-        run: npm install  # Azure 上で `node_modules/` を再インストール
+      - name: Unzip artifact for deployment
+        run: unzip release.zip -d /home/site/wwwroot  # `/home/site/wwwroot` に展開
 
       - name: Verify deployment files on Azure
         run: |
@@ -69,10 +69,13 @@ jobs:
           echo "Checking package.json..."
           cat /home/site/wwwroot/package.json
 
+      - name: Install dependencies on Azure
+        run: npm install --prefix /home/site/wwwroot  # `/home/site/wwwroot` で `npm install`
+
       - name: Test application startup
         run: |
           echo "Running npm start to check for errors..."
-          npm start || echo "npm start failed!"
+          npm --prefix /home/site/wwwroot start || echo "npm start failed!"
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -80,6 +83,6 @@ jobs:
         with:
           app-name: 'tech0-gen8-step4-pos-app-79'
           slot-name: 'Production'
-          package: .
+          package: /home/site/wwwroot
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           clean: true  # 古いファイルを削除
