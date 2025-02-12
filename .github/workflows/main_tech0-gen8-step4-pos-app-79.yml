@@ -90,7 +90,7 @@ jobs:
           ls -R ./wwwroot || echo "wwwroot directory does not exist after download!"
 
       - name: Install dependencies on Azure
-        run: npm install --prefix ./wwwroot  # `wwwroot` で `npm install`（重要！）
+        run: npm ci --prefix ./wwwroot  # `wwwroot` で `npm install`（重要！）
 
       - name: Test application startup
         run: |
