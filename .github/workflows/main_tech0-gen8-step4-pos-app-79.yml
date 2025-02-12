@@ -89,8 +89,13 @@ jobs:
           echo "Listing contents of wwwroot after download:"
           ls -R ./wwwroot || echo "wwwroot directory does not exist after download!"
 
+      - name: Ensure package.json exists in wwwroot
+        run: cp package.json package-lock.json ./wwwroot/
+
       - name: Install dependencies on Azure
-        run: npm ci --prefix ./wwwroot  # `wwwroot` で `npm install`（重要！）
+        run: |
+          npm ci --prefix ./wwwroot
+          ls -R ./wwwroot/node_modules || echo "node_modules is missing!"
 
       - name: Test application startup
         run: |
