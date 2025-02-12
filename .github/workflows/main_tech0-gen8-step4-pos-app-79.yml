@@ -25,7 +25,7 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "PORT=3000" >> $GITHUB_ENV
+          echo "PORT=8080" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -51,18 +51,7 @@ jobs:
             echo "Failed to create wwwroot directory!" && exit 1
           fi
           echo "Copying build files..."
-          cp -r .next next.config.js wwwroot/
-
-          # package.json の正しい場所を確認してコピー
-          if [ -f package.json ]; then
-            cp package.json package-lock.json wwwroot/
-          elif [ -f frontend/package.json ]; then
-            cp frontend/package.json frontend/package-lock.json wwwroot/
-          elif [ -f app/package.json ]; then
-            cp app/package.json app/package-lock.json wwwroot/
-          else
-            echo "Error: package.json not found!" && exit 1
-          fi
+          cp -r .next package.json package-lock.json next.config.js wwwroot/
 
           if [ -d public ]; then
             cp -r public wwwroot/
